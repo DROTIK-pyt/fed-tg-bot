@@ -3,86 +3,77 @@ const { Telegraf } = require('telegraf');
 const { Keyboard, Key } = require('telegram-keyboard')
 const bot = new Telegraf("5853447532:AAFgzhzHwiavkbrRZ44OX1ZJS1XdDCg9-iM") //сюда помещается токен, который дал botFather
 
+const result = {}
+
 bot.command('start', async (ctx) => {
     const keyboard = Keyboard.make([
-        Key.callback('ООО', 'ООО'),
-        Key.callback('НКО', 'НКО'),
-        Key.callback('АО (ЗАО, ПАО, НАО, ОАО)', 'АО (ЗАО, ПАО, НАО, ОАО)'),
-        Key.callback('Государственное или муниципальное предприятие', 'Государственное или муниципальное предприятие'),
-    ], { pattern: [2, 1, 1] })
+        Key.callback('Не более 1 месяца', 'Не более 1 месяца'),
+        Key.callback('Не более 6 месяцев', 'Не более 6 месяцев'),
+        Key.callback('Не более 1 года', 'Не более 1 года'),
+        Key.callback('Более 1 года', 'Более 1 года'),
+    ])
+    result[`${ctx.message.chat.id}`] = []
 
     // await ctx.telegram.sendMessage(ctx.message.chat.id, "Hello!", keyboard.reply())
-    await ctx.telegram.sendMessage(ctx.message.chat.id, `Добрый день, ${ctx.update.message.from.first_name}! Ответьте на вопросы, что бы получить консультацию`)
-    await ctx.telegram.sendMessage(ctx.message.chat.id, `Ваша оранизационно-правовая форма?`, keyboard.reply())
+    await ctx.telegram.sendMessage(ctx.message.chat.id, `Сколько времени прошло с момента получения лицензии? Как давно Вы нарушили срок публикации в ЕФРСФДЮЛ?`, keyboard.reply())
 })
-
-const result = []
   
 bot.on('message', async (ctx) => {
     const { text } = ctx.message
 
-    if(text === "ООО" ||
-       text === "НКО" ||
-       text === "АО (ЗАО, ПАО, НАО, ОАО)" ||
-       text === "Государственное или муниципальное предприятие")
+    if(text === "Не более 1 месяца" ||
+       text === "Не более 6 месяцев" ||
+       text === "Не более 1 года" ||
+       text === "Более 1 года")
     {
-        result.push({
-            queston: "Ваша оранизационно-правовая форма?",
+        result[`${ctx.message.chat.id}`].push({
+            queston: "Сколько времени прошло с момента получения лицензии? Как давно Вы нарушили срок публикации в ЕФРСФДЮЛ?",
             answer: text
         })
         const keyboard = Keyboard.make([
-            Key.callback('1', '1'),
-            Key.callback('2-5', '2-5'),
-            Key.callback('6-10', '6-10'),
-            Key.callback('>10', '>10'),
-        ], { pattern: [4] })
-        await ctx.telegram.sendMessage(ctx.message.chat.id, `Сколько у Вас лицензий?`, keyboard.reply())
-    } else if(text === "1" ||
-              text === "2-5" ||
-              text === "6-10" ||
-              text === ">10")
+            Key.callback('Не более 1 месяца', 'Не более 1 месяца'),
+            Key.callback('Не более 6 месяцев', 'Не более 6 месяцев'),
+            Key.callback('Не более 1 года', 'Не более 1 года'),
+            Key.callback('Более 1 года', 'Более 1 года'),
+        ])
+        await ctx.telegram.sendMessage(ctx.message.chat.id, `Сколько лицензий у Вашей медицинской организации?`, keyboard.remove())
+    } else if(text != "" && result[`${ctx.message.chat.id}`].length == 1)
     {
-        result.push({
-            queston: "Сколько у Вас лицензий?",
-            answer: text
-        })
-        const keyboard = Keyboard.make([
-            Key.callback('Да, состоит', 'Да, состоит'),
-            Key.callback('Нет, не состоит', 'Нет, не состоит'),
-        ], { pattern: [2] })
-        await ctx.telegram.sendMessage(ctx.message.chat.id, `Ваша компания состоит в СРО?`, keyboard.reply())
-    } else if(text === "Да, состоит" ||
-              text === "Нет, не состоит")
-    {
-        result.push({
-            queston: "Ваша компания состоит в СРО?",
+        result[`${ctx.message.chat.id}`].push({
+            queston: "Сколько лицензий у Вашей медицинской организации?",
             answer: text
         })
         const keyboard = Keyboard.make([
             Key.callback('Да', 'Да'),
             Key.callback('Нет', 'Нет'),
         ], { pattern: [2] })
-        await ctx.telegram.sendMessage(ctx.message.chat.id, `Вы проводите обязательный аудит?`, keyboard.reply())
+        await ctx.telegram.sendMessage(ctx.message.chat.id, `Вы уже получили предупреждение от надзорных органов (Прокуратуры/ФНС)?`, keyboard.reply())
     } else if(text === "Да" ||
               text === "Нет")
     {
+        result[`${ctx.message.chat.id}`].push({
+            queston: "Вы уже получили предупреждение от надзорных органов (Прокуратуры/ФНС)?",
+            answer: text
+        })
         const keyboard = Keyboard.make([
             Key.callback('Да', 'Да'),
             Key.callback('Нет', 'Нет'),
         ], { pattern: [2] })
-        result.push({
-            queston: "Вы проводите обязательный аудит?",
+        await ctx.telegram.sendMessage(ctx.message.chat.id, `Для получения БЕСПЛАТНОЙ КОНСУЛЬТАЦИИ о том, как устранить нарушения и избежать предписаний ФНС, Прокуратуры и штрафа 50 000 рублей - введите Ваш номер телефона`, keyboard.remove())
+    } else if(text != "" && result[`${ctx.message.chat.id}`].length > 1)
+    {
+        const keyboard = Keyboard.make([
+            Key.callback('Да', 'Да'),
+            Key.callback('Нет', 'Нет'),
+        ], { pattern: [2] })
+        result[`${ctx.message.chat.id}`].push({
+            queston: "Для получения БЕСПЛАТНОЙ КОНСУЛЬТАЦИИ о том, как устранить нарушения и избежать предписаний ФНС, Прокуратуры и штрафа 50 000 рублей - введите Ваш номер телефона",
             answer: text
         })
-        await ctx.telegram.sendMessage(ctx.message.chat.id, `Введите свой номер телефона для связи!`, keyboard.remove())
+        await ctx.telegram.sendMessage(ctx.message.chat.id, `Спасибо, в ближайшее время с Вами свяжется оператор!`, keyboard.remove())
     } else {
-        result.push({
-            queston: "Введите свой номер телефона для связи!",
-            answer: text
-        })
-        await ctx.telegram.sendMessage(ctx.message.chat.id, `Спасибо, в ближайшее время с Вами свяжется оператор!`)
+        await ctx.telegram.sendMessage(ctx.message.chat.id, `Неверный ввод: если кнопок нет - напишите свой вариант ответа иначе выберите его. Повторите ввод.`)
     }
-
     console.log(result)
 })
   
