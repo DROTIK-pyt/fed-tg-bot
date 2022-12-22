@@ -1,9 +1,30 @@
 const path = require('path');
 const { Telegraf } = require('telegraf');
 const { Keyboard, Key } = require('telegram-keyboard')
-const bot = new Telegraf("5853447532:AAFgzhzHwiavkbrRZ44OX1ZJS1XdDCg9-iM") //сюда помещается токен, который дал botFather
+const bot = new Telegraf("5681948554:AAGFJQPtjlcR-5sgCtfJNO26GNkO5mvXxhs") //сюда помещается токен, который дал botFather
+const request = require('request');
 
 const result = {}
+
+async function sendData2B24API(answers, phone) {
+    if(!answers || !phone) return false
+
+    let requestPromise = new Promise((resolve, reject) => {
+        request.post({
+            url: "http://bot.fed-bd.ru",
+            form: {
+                answers, phone
+            }
+        },
+        (err, response, body) => {
+            if (err) reject(err)
+        
+            resolve(JSON.parse(body))
+        })
+    })
+
+    await requestPromise
+}
 
 bot.command('start', async (ctx) => {
     const keyboard = Keyboard.make([
@@ -66,15 +87,11 @@ bot.on('message', async (ctx) => {
             Key.callback('Да', 'Да'),
             Key.callback('Нет', 'Нет'),
         ], { pattern: [2] })
-        result[`${ctx.message.chat.id}`].push({
-            queston: "Для получения БЕСПЛАТНОЙ КОНСУЛЬТАЦИИ о том, как устранить нарушения и избежать предписаний ФНС, Прокуратуры и штрафа 50 000 рублей - введите Ваш номер телефона",
-            answer: text
-        })
+        await sendData2B24API(result[`${ctx.message.chat.id}`], text)
         await ctx.telegram.sendMessage(ctx.message.chat.id, `Спасибо, в ближайшее время с Вами свяжется оператор!`, keyboard.remove())
     } else {
         await ctx.telegram.sendMessage(ctx.message.chat.id, `Неверный ввод: если кнопок нет - напишите свой вариант ответа иначе выберите его. Повторите ввод.`)
     }
-    console.log(result)
 })
   
 bot.launch();
