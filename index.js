@@ -32,7 +32,7 @@ bot.command('start', async (ctx) => {
         Key.callback('Не более 6 месяцев', 'Не более 6 месяцев'),
         Key.callback('Не более 1 года', 'Не более 1 года'),
         Key.callback('Более 1 года', 'Более 1 года'),
-    ])
+    ], { pattern: [ 1, 1, 1, 1 ] })
     result[`${ctx.message.chat.id}`] = []
 
     // await ctx.telegram.sendMessage(ctx.message.chat.id, "Hello!", keyboard.reply())
