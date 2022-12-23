@@ -19,7 +19,7 @@ async function sendData2B24API(answers, phone) {
         (err, response, body) => {
             if (err) reject(err)
         
-            resolve(JSON.parse(body))
+            resolve(body)
         })
     })
 
@@ -70,15 +70,20 @@ bot.on('message', async (ctx) => {
             queston: "Вы уже получили предупреждение от надзорных органов (Прокуратуры/ФНС)?",
             answer: text
         })
-        const keyboard = Keyboard.make([ "Да", "Нет" ], { pattern: [2] })
-        await ctx.telegram.sendMessage(ctx.message.chat.id, `Для получения БЕСПЛАТНОЙ КОНСУЛЬТАЦИИ о том, как устранить нарушения и избежать предписаний ФНС, Прокуратуры и штрафа 50 000 рублей - введите Ваш номер телефона`, keyboard.remove())
+        const keyboard = Keyboard.make([ Key.contact('Отправить контакт') ], { pattern: [1] } )
+        await ctx.telegram.sendMessage(ctx.message.chat.id, `Для получения БЕСПЛАТНОЙ КОНСУЛЬТАЦИИ о том, как устранить нарушения и избежать предписаний ФНС, Прокуратуры и штрафа 50 000 рублей - введите Ваш номер телефона или нажмите "Отправить контакт"`, keyboard.reply())
     } else if(text != "")
     {
+        // console.log(ctx.message.text, ctx.message.contact)
         const keyboard = Keyboard.make([
-            Key.callback('Да', 'Да'),
-            Key.callback('Нет', 'Нет'),
-        ], { pattern: [2] })
-        await sendData2B24API(result[`${ctx.message.chat.id}`], text)
+            Key.contact('Отправить контакт')
+        ], { pattern: [1] })
+
+        if(ctx.message?.contact?.phone_number)
+            await sendData2B24API(result[`${ctx.message.chat.id}`], ctx.message.contact.phone_number)
+        else
+            await sendData2B24API(result[`${ctx.message.chat.id}`], text)
+
         await ctx.telegram.sendMessage(ctx.message.chat.id, `Спасибо, в ближайшее время с Вами свяжется оператор!`, keyboard.remove())
         result[`${ctx.message.chat.id}`] = []
     } else {
