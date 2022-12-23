@@ -70,13 +70,13 @@ bot.on('message', async (ctx) => {
             queston: "Вы уже получили предупреждение от надзорных органов (Прокуратуры/ФНС)?",
             answer: text
         })
-        const keyboard = Keyboard.make([ Key.contact('Отправить контакт') ], { pattern: [1] } )
+        const keyboard = Keyboard.make([ Key.contact('Отправить свой номер телефона') ], { pattern: [1] } )
         await ctx.telegram.sendMessage(ctx.message.chat.id, `Для получения БЕСПЛАТНОЙ КОНСУЛЬТАЦИИ о том, как устранить нарушения и избежать предписаний ФНС, Прокуратуры и штрафа 50 000 рублей - введите Ваш номер телефона или нажмите "Отправить контакт"`, keyboard.reply())
     } else if(text != "")
     {
         // console.log(ctx.message.text, ctx.message.contact)
         const keyboard = Keyboard.make([
-            Key.contact('Отправить контакт')
+            Key.contact('Отправить свой номер телефона')
         ], { pattern: [1] })
 
         if(ctx.message?.contact?.phone_number)
