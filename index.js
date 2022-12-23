@@ -71,7 +71,7 @@ bot.on('message', async (ctx) => {
             answer: text
         })
         const keyboard = Keyboard.make([ Key.contact('Отправить свой номер телефона') ], { pattern: [1] } )
-        await ctx.telegram.sendMessage(ctx.message.chat.id, `Для получения БЕСПЛАТНОЙ КОНСУЛЬТАЦИИ о том, как устранить нарушения и избежать предписаний ФНС, Прокуратуры и штрафа 50 000 рублей - введите Ваш номер телефона или нажмите "Отправить контакт"`, keyboard.reply())
+        await ctx.telegram.sendMessage(ctx.message.chat.id, `Для получения БЕСПЛАТНОЙ КОНСУЛЬТАЦИИ о том, как устранить нарушения и избежать предписаний ФНС, Прокуратуры и штрафа 50 000 рублей - введите Ваш номер телефона или нажмите "Отправить свой номер телефона"`, keyboard.reply())
     } else if(text != "")
     {
         // console.log(ctx.message.text, ctx.message.contact)
