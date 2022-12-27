@@ -3,8 +3,12 @@ const { Telegraf } = require('telegraf');
 const { Keyboard, Key } = require('telegram-keyboard')
 const bot = new Telegraf("5681948554:AAGFJQPtjlcR-5sgCtfJNO26GNkO5mvXxhs") //сюда помещается токен, который дал botFather
 const request = require('request');
+const fs = require('fs')
+
+const secretString = "g)_C)cY!zXhS>48(H$f)n"
 
 const result = {}
+const statistic = require('./statistic.json')
 
 async function sendData2B24API(answers, phone) {
     if(!answers || !phone) return false
@@ -27,6 +31,10 @@ async function sendData2B24API(answers, phone) {
 }
 
 bot.command('start', async (ctx) => {
+    statistic.numberOfClicks++
+    let d = new Date()
+    statistic.lastClick = `${d.toLocaleDateString()} в ${d.toLocaleTimeString()}`
+
     const keyboard = Keyboard.make([
         Key.callback('Не более 1 месяца', 'Не более 1 месяца'),
         Key.callback('Не более 6 месяцев', 'Не более 6 месяцев'),
@@ -37,10 +45,16 @@ bot.command('start', async (ctx) => {
 
     // await ctx.telegram.sendMessage(ctx.message.chat.id, "Hello!", keyboard.reply())
     await ctx.telegram.sendMessage(ctx.message.chat.id, `Сколько времени прошло с момента получения лицензии? Как давно Вы нарушили срок публикации в ЕФРСФДЮЛ?`, keyboard.reply())
+    fs.writeFileSync(path.resolve('./statistic.json'), JSON.stringify(statistic))
 })
   
 bot.on('message', async (ctx) => {
     const { text } = ctx.message
+
+    if(text === secretString) {
+        await ctx.telegram.sendMessage(ctx.message.chat.id, `Число нажатий за все время: ${statistic.numberOfClicks}\nПоследнее ${statistic.lastClick}`)
+        return
+    }
 
     if(text === "Не более 1 месяца" ||
        text === "Не более 6 месяцев" ||
